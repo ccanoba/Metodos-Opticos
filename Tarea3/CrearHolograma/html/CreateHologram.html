@@ -1,0 +1,198 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>CreateHologram</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-06"><meta name="DC.source" content="CreateHologram.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Parameters definition</a></li><li><a href="#3">Propagation process</a></li><li><a href="#5">Interpolation of the data.</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%</span>
+<span class="comment">% This function create an hologram from a set of points in the space</span>
+<span class="comment">% defined by xp, yp and zsp, which are the coordinates of the point in x,y</span>
+<span class="comment">% and z coordinates.</span>
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+clear,clc,close <span class="string">all</span>
+</pre><h2>Parameters definition<a name="2"></a></h2><pre class="codeinput">M = 1024;               <span class="comment">% Array size</span>
+zp = 5e-3;              <span class="comment">% Source-Hologram distance</span>
+lambda = 405e-9;        <span class="comment">% Illumination wavelength</span>
+L2 = 6e-6*M;            <span class="comment">% Hologram pixel size</span>
+k = 2*pi/lambda;        <span class="comment">% wavenumber</span>
+Interpolar = 0;         <span class="comment">% Whether or not interpolate in propagation function</span>
+
+Ih = zeros(M);          <span class="comment">% Hologram matrix initialization</span>
+xp = 1e-6*[40,0,0,-60,60,-60];              <span class="comment">% x coordinates for the point</span>
+yp = 1e-6*[0,0,40,60,-40,-60];              <span class="comment">% y coordinates for the point</span>
+zsp = 1e-6*[100,100,150,175,175,200];       <span class="comment">% z coordinates for the point</span>
+objSize = 1e-6*ones(1,length(xp))*0.5;      <span class="comment">% Point size</span>
+NP = size(zsp,2);
+</pre><h2>Propagation process<a name="3"></a></h2><p>Every images is generate and propagate, then the final hologram is build as the sum of the indivudual holograms of each point</p><pre class="codeinput"><span class="keyword">for</span> i = 1:NP
+
+    zs = zsp(i);        <span class="comment">% Source object distance</span>
+    L = (L2*zs)/zp;     <span class="comment">% Object size</span>
+    dx = L/M;           <span class="comment">% Object pixel size</span>
+
+    x = -L/2:dx:L/2-dx;
+    [X,Y] = meshgrid(x,x);  <span class="comment">% Object plane coordinates system</span>
+
+    <span class="comment">% Object creation</span>
+    obj = ones(length(x),length(x));
+    obj((X-xp(i)).^2+(Y-yp(i)).^2&lt;=objSize(i)^2) = 0;
+
+    SourcePhase = exp((1i*k*sqrt(X.^2+Y.^2+zs.^2)))./sqrt(X.^2+Y.^2+zs.^2); <span class="comment">% Spherical wavefront phase</span>
+
+
+    A0 = obj.*SourcePhase;  <span class="comment">% Object field</span>
+    As = SourcePhase;       <span class="comment">% Spherical wave phase</span>
+
+    [A, X2, Y2] = propF_Mod(A0, L, zp-zs, L2, lambda,Interpolar);        <span class="comment">%% Object field propagation</span>
+    [A2s, X2s, Y2s] = propF_Mod(As, L, zp-zs, L2, lambda,Interpolar);    <span class="comment">%% Source field propagation</span>
+
+    I = A.*conj(A);         <span class="comment">% Object propagated intesity</span>
+    Is = A2s.*conj(A2s);    <span class="comment">% Source propagated intensity</span>
+    I = I-Is;               <span class="comment">% Contrast Hologram</span>
+    I2 = I/max(I(:));       <span class="comment">% Image normalization</span>
+    I2 = imcomplement(I2);  <span class="comment">% For display</span>
+    Ih = Ih+I2;             <span class="comment">% Sum of diferent holograms</span>
+<span class="keyword">end</span>
+</pre><h2>Interpolation of the data.<a name="5"></a></h2><p>The interpolation should be done for each hologram according to its object hologram distace, however this takes a lot of time. But it is possible to assume that particles are very close and if we interpolate for a single position it should not introduce many negative effects</p><pre class="codeinput">[Ih] = interpolarPropFMod(Ih, X2, Y2, zp);
+
+figure, plot3(xp*1e6,yp*1e6,zsp*1e6,<span class="string">'ob'</span>),axis <span class="string">square</span>, xlabel(<span class="string">'x[\mum]'</span>), ylabel(<span class="string">'y[\mum]'</span>), zlabel(<span class="string">'z[\mum]'</span>),grid <span class="string">on</span>, title(<span class="string">'Object: set of particles'</span>)
+figure,imagesc(X2(1,:)*1e3,X2(1,:)*1e3,abs(Ih)),colorbar, colormap <span class="string">gray</span>, title(<span class="string">'Contrast Hologram'</span>), xlabel(<span class="string">'x[mm]'</span>), ylabel(<span class="string">'y[mm]'</span>), axis <span class="string">square</span>;
+</pre><img vspace="5" hspace="5" src="CreateHologram_01.png" alt=""> <img vspace="5" hspace="5" src="CreateHologram_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This function create an hologram from a set of points in the space
+% defined by xp, yp and zsp, which are the coordinates of the point in x,y
+% and z coordinates.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clear,clc,close all
+
+%% Parameters definition
+
+M = 1024;               % Array size
+zp = 5e-3;              % Source-Hologram distance
+lambda = 405e-9;        % Illumination wavelength
+L2 = 6e-6*M;            % Hologram pixel size
+k = 2*pi/lambda;        % wavenumber
+Interpolar = 0;         % Whether or not interpolate in propagation function
+
+Ih = zeros(M);          % Hologram matrix initialization
+xp = 1e-6*[40,0,0,-60,60,-60];              % x coordinates for the point
+yp = 1e-6*[0,0,40,60,-40,-60];              % y coordinates for the point
+zsp = 1e-6*[100,100,150,175,175,200];       % z coordinates for the point
+objSize = 1e-6*ones(1,length(xp))*0.5;      % Point size
+NP = size(zsp,2);
+
+%% Propagation process
+%%
+% Every images is generate and propagate, then the final hologram is build
+% as the sum of the indivudual holograms of each point
+
+for i = 1:NP
+    
+    zs = zsp(i);        % Source object distance
+    L = (L2*zs)/zp;     % Object size
+    dx = L/M;           % Object pixel size
+    
+    x = -L/2:dx:L/2-dx;
+    [X,Y] = meshgrid(x,x);  % Object plane coordinates system
+    
+    % Object creation
+    obj = ones(length(x),length(x));
+    obj((X-xp(i)).^2+(Y-yp(i)).^2<=objSize(i)^2) = 0;
+    
+    SourcePhase = exp((1i*k*sqrt(X.^2+Y.^2+zs.^2)))./sqrt(X.^2+Y.^2+zs.^2); % Spherical wavefront phase
+    
+    
+    A0 = obj.*SourcePhase;  % Object field
+    As = SourcePhase;       % Spherical wave phase
+    
+    [A, X2, Y2] = propF_Mod(A0, L, zp-zs, L2, lambda,Interpolar);        %% Object field propagation
+    [A2s, X2s, Y2s] = propF_Mod(As, L, zp-zs, L2, lambda,Interpolar);    %% Source field propagation
+    
+    I = A.*conj(A);         % Object propagated intesity
+    Is = A2s.*conj(A2s);    % Source propagated intensity
+    I = I-Is;               % Contrast Hologram
+    I2 = I/max(I(:));       % Image normalization
+    I2 = imcomplement(I2);  % For display
+    Ih = Ih+I2;             % Sum of diferent holograms
+end
+
+%% Interpolation of the data.
+%%
+% The interpolation should be done for each hologram according to its
+% object hologram distace, however this takes a lot of time. But it is
+% possible to assume that particles are very close and if we interpolate
+% for a single position it should not introduce many negative effects
+[Ih] = interpolarPropFMod(Ih, X2, Y2, zp);
+
+figure, plot3(xp*1e6,yp*1e6,zsp*1e6,'ob'),axis square, xlabel('x[\mum]'), ylabel('y[\mum]'), zlabel('z[\mum]'),grid on, title('Object: set of particles')
+figure,imagesc(X2(1,:)*1e3,X2(1,:)*1e3,abs(Ih)),colorbar, colormap gray, title('Contrast Hologram'), xlabel('x[mm]'), ylabel('y[mm]'), axis square;
+##### SOURCE END #####
+--></body></html>
