@@ -9,6 +9,7 @@
 clear,clc,close all
 
 %% Parameters definition
+addpath('FUNCTIONS')
 
 M = 1024;               % Array size
 zp = 5e-3;              % Source-Hologram distance
@@ -48,8 +49,8 @@ for i = 1:NP
     A0 = obj.*SourcePhase;  % Object field
     As = SourcePhase;       % Spherical wave phase
     
-    [A, X2, Y2] = FUNCTIONS.propF_Mod(A0, L, zp-zs, L2, lambda,Interpolar);        %% Object field propagation
-    [A2s, X2s, Y2s] = FUNCTIONS.propF_Mod(As, L, zp-zs, L2, lambda,Interpolar);    %% Source field propagation
+    [A, X2, Y2] = propF_Mod(A0, L, zp-zs, L2, lambda,Interpolar);        %% Object field propagation
+    [A2s, X2s, Y2s] = propF_Mod(As, L, zp-zs, L2, lambda,Interpolar);    %% Source field propagation
     
     I = A.*conj(A);         % Object propagated intesity
     Is = A2s.*conj(A2s);    % Source propagated intensity
@@ -65,7 +66,7 @@ end
 % object hologram distace, however this takes a lot of time. But it is
 % possible to assume that particles are very close and if we interpolate
 % for a single position it should not introduce many negative effects
-[Ih] = FUNCTIONS.interpolarPropFMod(Ih, X2, Y2, zp);
+[Ih] = interpolarPropFMod(Ih, X2, Y2, zp);
 
 figure, plot3(xp*1e6,yp*1e6,zsp*1e6,'ob'),axis square, xlabel('x[\mum]'), ylabel('y[\mum]'), zlabel('z[\mum]'),grid on, title('Object: set of particles')
 figure,imagesc(X2(1,:)*1e3,X2(1,:)*1e3,abs(Ih)),colorbar, colormap gray, title('Contrast Hologram'), xlabel('x[mm]'), ylabel('y[mm]'), axis square;
