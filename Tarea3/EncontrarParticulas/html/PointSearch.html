@@ -1,0 +1,538 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>PointSearch</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-06"><meta name="DC.source" content="PointSearch.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Read and prepare image</a></li><li><a href="#3">Reconstruction of several planes</a></li><li><a href="#4">Particles identification</a></li><li><a href="#5">Centroid calculation</a></li><li><a href="#6">Find z position</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%</span>
+<span class="comment">% This function find particles from a contrast Hologram</span>
+<span class="comment">%</span>
+<span class="comment">% Some parameters are needed:</span>
+<span class="comment">%</span>
+<span class="comment">% name: name of the hologram file</span>
+<span class="comment">% zs : source detector distance</span>
+<span class="comment">% lambda : illumination wavelength</span>
+<span class="comment">% PixelSize : Sensor pixel size</span>
+<span class="comment">% Manual : Whether or not the user want to choose the presence of particles</span>
+<span class="comment">% manually</span>
+<span class="comment">%</span>
+<span class="comment">% Some adittional values have to be set for the filtering and binarization</span>
+<span class="comment">% process, they are called Factor1 and Factor2 and are defined form 0 to 1</span>
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+</pre><h2>Read and prepare image<a name="2"></a></h2><pre class="codeinput"><span class="comment">% addpath('Holograms')</span>
+<span class="comment">% addpath('C:\Users\franjas\Documents\Trabajo Camilo\Cursos 2017-1\MetodosOpticos\Test2')</span>
+
+name = <span class="string">'ejemplo1'</span>;
+zs = 6e-3;                  <span class="comment">% Source detector distance</span>
+lambda = 405e-9;            <span class="comment">% Ilumination wavelength</span>
+PixelSize = 6e-6;           <span class="comment">% Sensor pixel size</span>
+Manual = 0;                 <span class="comment">% Whether or not particle identification is done by the user</span>
+
+<span class="keyword">if</span> strcmp(name, <span class="string">'ejemplo1'</span>)
+  HoloCont = imread(<span class="string">'holo.pgm'</span>);
+  HoloCont = double(HoloCont);
+  zs = 6e-3;
+  lambda = 405e-9;
+  PixelSize = 6e-6;
+  Manual = 0;
+<span class="keyword">elseif</span> strcmp(name, <span class="string">'ejemplo2'</span>)
+  HoloCont = imread(<span class="string">'holo.tiff'</span>);
+  HoloCont = double(HoloCont);
+  zs = 8e-3;
+  lambda = 405e-9;
+  PixelSize = 6e-6;
+  Manual = 0;
+<span class="keyword">else</span>
+  HoloCont = imread(name);
+  HoloCont = double(HoloCont);
+<span class="keyword">end</span>
+</pre><h2>Reconstruction of several planes<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> strcmp(name, <span class="string">'ejemplo1'</span>)
+  StartPlane = 90e-6;             <span class="comment">% Plane in which starts to look for particles</span>
+  EndPlane = 210e-6;              <span class="comment">% Plane in which finish to look for particles</span>
+  SamplePlane = 2e-6;             <span class="comment">% Sample intervale in which finish look for particles</span>
+<span class="keyword">elseif</span> strcmp(name, <span class="string">'ejemplo2'</span>)
+  StartPlane = 180e-6;             <span class="comment">% Plane in which starts to look for particles</span>
+  EndPlane = 220e-6;              <span class="comment">% Plane in which finish to look for particles</span>
+  SamplePlane = 2e-6;             <span class="comment">% Sample intervale in which finish look for particles</span>
+<span class="keyword">else</span>
+  StartPlane = 180e-6;             <span class="comment">% Plane in which starts to look for particles</span>
+  EndPlane = 220e-6;              <span class="comment">% Plane in which finish to look for particles</span>
+  SamplePlane = 2e-6;             <span class="comment">% Sample intervale in which finish look for particles</span>
+<span class="keyword">end</span>
+
+Planes = StartPlane:SamplePlane:EndPlane;                                       <span class="comment">% Planes vector list</span>
+disp(<span class="string">'Reconstruction of interest planes'</span>);
+tic
+ObjectReconstructed = Holo_Retrieval(HoloCont, lambda, PixelSize, zs, Planes);  <span class="comment">% Reconstruction of the different planes of interest</span>
+ObjectReconstructed = abs(ObjectReconstructed).^2;                              <span class="comment">% It is better to work with the intensity</span>
+tiempo = toc;
+disp([<span class="string">'The reconstruction took '</span> num2str(tiempo) <span class="string">' s'</span>]);
+</pre><pre class="codeoutput">Reconstruction of interest planes
+Layer 1 at z = 90 um
+Layer 2 at z = 92 um
+Layer 3 at z = 94 um
+Layer 4 at z = 96 um
+Layer 5 at z = 98 um
+Layer 6 at z = 100 um
+Layer 7 at z = 102 um
+Layer 8 at z = 104 um
+Layer 9 at z = 106 um
+Layer 10 at z = 108 um
+Layer 11 at z = 110 um
+Layer 12 at z = 112 um
+Layer 13 at z = 114 um
+Layer 14 at z = 116 um
+Layer 15 at z = 118 um
+Layer 16 at z = 120 um
+Layer 17 at z = 122 um
+Layer 18 at z = 124 um
+Layer 19 at z = 126 um
+Layer 20 at z = 128 um
+Layer 21 at z = 130 um
+Layer 22 at z = 132 um
+Layer 23 at z = 134 um
+Layer 24 at z = 136 um
+Layer 25 at z = 138 um
+Layer 26 at z = 140 um
+Layer 27 at z = 142 um
+Layer 28 at z = 144 um
+Layer 29 at z = 146 um
+Layer 30 at z = 148 um
+Layer 31 at z = 150 um
+Layer 32 at z = 152 um
+Layer 33 at z = 154 um
+Layer 34 at z = 156 um
+Layer 35 at z = 158 um
+Layer 36 at z = 160 um
+Layer 37 at z = 162 um
+Layer 38 at z = 164 um
+Layer 39 at z = 166 um
+Layer 40 at z = 168 um
+Layer 41 at z = 170 um
+Layer 42 at z = 172 um
+Layer 43 at z = 174 um
+Layer 44 at z = 176 um
+Layer 45 at z = 178 um
+Layer 46 at z = 180 um
+Layer 47 at z = 182 um
+Layer 48 at z = 184 um
+Layer 49 at z = 186 um
+Layer 50 at z = 188 um
+Layer 51 at z = 190 um
+Layer 52 at z = 192 um
+Layer 53 at z = 194 um
+Layer 54 at z = 196 um
+Layer 55 at z = 198 um
+Layer 56 at z = 200 um
+Layer 57 at z = 202 um
+Layer 58 at z = 204 um
+Layer 59 at z = 206 um
+Layer 60 at z = 208 um
+Layer 61 at z = 210 um
+The reconstruction took 44.0174 s
+</pre><h2>Particles identification<a name="4"></a></h2><pre class="codeinput">disp(<span class="string">'Finding particles'</span>);
+<span class="comment">% Objects projection</span>
+ObjectProj = sum(ObjectReconstructed,3);
+ObjectProj = ObjectProj/max(ObjectProj(:));
+ObjectProj = squeeze(ObjectProj);
+figure,imagesc(abs(ObjectProj).^2), colorbar, colormap <span class="string">gray</span>, axis <span class="string">square</span>, xlabel(<span class="string">'Pixel in X'</span>), ylabel(<span class="string">'Pixel in Y'</span>), title(<span class="string">'Projection: Reconstructed planes superposition'</span>)
+
+<span class="comment">% Image filtering</span>
+FObject = fftshift(fft2(fftshift(ObjectProj)));
+xt = linspace(-1,1,size(ObjectProj,1));
+[Xt,Yt] = meshgrid(xt);
+[T,R] = cart2pol(Xt,Yt);
+<span class="keyword">if</span> strcmp(name, <span class="string">'ejemplo1'</span>)
+  Factor1 = 0.1;
+<span class="keyword">elseif</span> strcmp(name, <span class="string">'ejemplo2'</span>)
+  Factor1 = 0.05;
+<span class="keyword">else</span>
+  Factor1 = 0.1;
+<span class="keyword">end</span>
+mask = R&gt;Factor1;
+FilteredObjectProj = fftshift(ifft2(fftshift(FObject.*mask)));
+FilteredObjectProj = abs(FilteredObjectProj).^2;
+FilteredObjectProj = FilteredObjectProj/max(FilteredObjectProj(:));
+figure,imagesc(FilteredObjectProj), colorbar, colormap <span class="string">gray</span>, axis <span class="string">square</span>, xlabel(<span class="string">'Pixel in X'</span>), ylabel(<span class="string">'Pixel in Y'</span>), title(<span class="string">'Filtered projection'</span>)
+
+<span class="comment">% Image binarization</span>
+<span class="keyword">if</span> strcmp(name, <span class="string">'ejemplo1'</span>)
+  Factor2 = 0.1;
+<span class="keyword">elseif</span> strcmp(name, <span class="string">'ejemplo2'</span>)
+  Factor2 = 0.5;
+<span class="keyword">else</span>
+  Factor2 = 0.1;
+<span class="keyword">end</span>
+Points1 = FilteredObjectProj &gt; Factor2;
+
+<span class="comment">% Automatic particle identification</span>
+
+<span class="keyword">if</span> Manual == 0
+  se = strel(<span class="string">'disk'</span>,5);
+  bw = imclose(Points1,se);
+  figure,imagesc(bw), colorbar, colormap <span class="string">gray</span>, axis <span class="string">square</span>, xlabel(<span class="string">'Pixel in X'</span>), ylabel(<span class="string">'Pixel in Y'</span>), title(<span class="string">'Binarized projection'</span>)
+<span class="keyword">end</span>
+
+<span class="comment">% Selection of particles</span>
+<span class="keyword">if</span> Manual == 1
+  figure, imagesc((Points1-1)*-1), colorbar, colormap <span class="string">gray</span>, axis <span class="string">square</span>, xlabel(<span class="string">'Pixel in X'</span>), ylabel(<span class="string">'Pixel in Y'</span>), title(<span class="string">'Binarized projection'</span>)
+  uiwait(msgbox(<span class="string">'Select points to evaluate'</span>));
+  [px,py] = ginput;
+  px = round(px); py = round(py);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Finding particles
+</pre><img vspace="5" hspace="5" src="PointSearch_01.png" alt=""> <img vspace="5" hspace="5" src="PointSearch_02.png" alt=""> <img vspace="5" hspace="5" src="PointSearch_03.png" alt=""> <h2>Centroid calculation<a name="5"></a></h2><pre class="codeinput"><span class="keyword">if</span> Manual == 1
+
+  Xc=zeros(1,length(px));
+  Yc=zeros(1,length(py));
+  ROIc = 10;
+
+  <span class="keyword">for</span> p = 1:length(px);
+    <span class="keyword">for</span> q = -ROIc:ROIc
+      <span class="keyword">for</span> r = -ROIc:ROIc
+        Xc(p) = Xc(p)+abs(Points1(py(p)+q,px(p)+r)*(px(p)+r));
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    Xc(p) = Xc(p)/sum(sum(abs(Points1(py(p)-ROIc:py(p)+ROIc,px(p)-ROIc:px(p)+ROIc))));
+
+    <span class="keyword">for</span> q = -ROIc:ROIc
+      <span class="keyword">for</span> r = -ROIc:ROIc
+        Yc(p) = Yc(p)+abs(Points1(py(p)+q,px(p)+r)*(py(p)+q));
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    Yc(p) = Yc(p)/sum(sum(abs(Points1(py(p)-ROIc:py(p)+ROIc,px(p)-ROIc:px(p)+ROIc))));
+  <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+<span class="comment">% Automatic centroid calculation</span>
+<span class="keyword">if</span> Manual == 0
+  PointR = bwconncomp(bw);
+  Xc=zeros(1,PointR.NumObjects);
+  Yc=zeros(1,PointR.NumObjects);
+  PointLoc = regionprops(PointR,<span class="string">'Centroid'</span>);
+  <span class="keyword">for</span> p = 1:PointR.NumObjects
+    Dato = PointLoc(p).Centroid;
+    Xc(p) = Dato(1); Yc(p) = Dato(2);
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Find z position<a name="6"></a></h2><pre class="codeinput">disp([num2str(PointR.NumObjects) <span class="string">' particles were found'</span>]);
+
+Xcr = round(Xc); Ycr = round(Yc);
+z = Planes; z2 = linspace(StartPlane,EndPlane,500);
+ILine = zeros(1,length(Planes),length(Xcr));
+ILine2 = zeros(1,length(z2),length(Xcr));
+PointPlane = zeros(1, length(Xcr));
+ROIc = 10;
+
+<span class="keyword">for</span> p = 1:length(Xcr)
+  ObjectROIc = ObjectReconstructed(Ycr(p)-ROIc:Ycr(p)+ROIc,Xcr(p)-ROIc:Xcr(p)+ROIc,:);
+  ObjectROIc = sum(sum(ObjectROIc,1),2);
+  ILine(:,:,p) = ObjectROIc;
+  curve = ILine(:,:,p);
+  f = fit(z',curve',<span class="string">'gauss2'</span>);
+  a1 = f.a1; a2 = f.a2; b1 = f.b1; b2 = f.b2; c1 = f.c1; c2 = f.c2;
+  gauss=a1.*exp(-((z2-b1)./(c1)).^2) + a2.*exp(-((z2-b2)./(c2)).^2);
+  ILine2(:,:,p) = gauss;
+  <span class="keyword">if</span> PointR.NumObjects &lt;= 30
+  figure(99), plot(z,ILine(:,:,p),<span class="string">'b*'</span>), hold <span class="string">on</span>,plot(z2,gauss,<span class="string">'r'</span>);
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+[~,PointPlane] = max(ILine2,[],2);
+PointPlaneZ = z2(PointPlane)*1e6;
+
+ObjectPixel = (PointPlaneZ/zs)*PixelSize;
+PointXcoor = (Xcr-size(HoloCont,2)/2).*ObjectPixel;
+PointYcoor = -(Ycr-size(HoloCont,2)/2).*ObjectPixel;
+
+Coordinates = [PointXcoor' PointYcoor' PointPlaneZ'];
+
+
+<span class="keyword">if</span> strcmp(name, <span class="string">'ejemplo1'</span>)
+  figure,plot3(PointXcoor', PointYcoor', PointPlaneZ', <span class="string">'ob'</span>)
+  load(<span class="string">'Pts_XYZ.mat'</span>)
+  hold <span class="string">on</span>,plot3(Points_XYZ(:,1), Points_XYZ(:,2), Points_XYZ(:,3), <span class="string">'or'</span>), hold <span class="string">off</span>,
+  axis <span class="string">square</span>, xlabel(<span class="string">'x[\mum]'</span>), ylabel(<span class="string">'y[\mum]'</span>), zlabel(<span class="string">'z[\mum]'</span>),grid <span class="string">on</span>, title(<span class="string">'Found particles'</span>)
+  legend(<span class="string">'Found positions'</span>, <span class="string">'Real Positions'</span>,<span class="string">'Location'</span>,<span class="string">'North'</span>)
+<span class="keyword">else</span>
+  figure,plot3(PointXcoor', PointYcoor', PointPlaneZ', <span class="string">'o'</span>)
+  axis <span class="string">square</span>, xlabel(<span class="string">'x[\mum]'</span>), ylabel(<span class="string">'y[\mum]'</span>), zlabel(<span class="string">'z[\mum]'</span>),grid <span class="string">on</span>, title(<span class="string">'Found particles'</span>)
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">20 particles were found
+</pre><img vspace="5" hspace="5" src="PointSearch_04.png" alt=""> <img vspace="5" hspace="5" src="PointSearch_05.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This function find particles from a contrast Hologram
+%
+% Some parameters are needed:
+%
+% name: name of the hologram file
+% zs : source detector distance
+% lambda : illumination wavelength
+% PixelSize : Sensor pixel size
+% Manual : Whether or not the user want to choose the presence of particles
+% manually
+%
+% Some adittional values have to be set for the filtering and binarization
+% process, they are called Factor1 and Factor2 and are defined form 0 to 1
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Read and prepare image
+
+% addpath('Holograms')
+% addpath('C:\Users\franjas\Documents\Trabajo Camilo\Cursos 2017-1\MetodosOpticos\Test2')
+
+name = 'ejemplo1';
+zs = 6e-3;                  % Source detector distance
+lambda = 405e-9;            % Ilumination wavelength
+PixelSize = 6e-6;           % Sensor pixel size
+Manual = 0;                 % Whether or not particle identification is done by the user
+
+if strcmp(name, 'ejemplo1')
+  HoloCont = imread('holo.pgm');
+  HoloCont = double(HoloCont);
+  zs = 6e-3;
+  lambda = 405e-9;
+  PixelSize = 6e-6;
+  Manual = 0;
+elseif strcmp(name, 'ejemplo2')
+  HoloCont = imread('holo.tiff');
+  HoloCont = double(HoloCont);
+  zs = 8e-3;
+  lambda = 405e-9;
+  PixelSize = 6e-6;
+  Manual = 0;
+else
+  HoloCont = imread(name);
+  HoloCont = double(HoloCont);
+end
+
+%% Reconstruction of several planes
+
+if strcmp(name, 'ejemplo1')
+  StartPlane = 90e-6;             % Plane in which starts to look for particles
+  EndPlane = 210e-6;              % Plane in which finish to look for particles
+  SamplePlane = 2e-6;             % Sample intervale in which finish look for particles
+elseif strcmp(name, 'ejemplo2')
+  StartPlane = 180e-6;             % Plane in which starts to look for particles
+  EndPlane = 220e-6;              % Plane in which finish to look for particles
+  SamplePlane = 2e-6;             % Sample intervale in which finish look for particles
+else
+  StartPlane = 180e-6;             % Plane in which starts to look for particles
+  EndPlane = 220e-6;              % Plane in which finish to look for particles
+  SamplePlane = 2e-6;             % Sample intervale in which finish look for particles
+end
+
+Planes = StartPlane:SamplePlane:EndPlane;                                       % Planes vector list
+disp('Reconstruction of interest planes');
+tic
+ObjectReconstructed = Holo_Retrieval(HoloCont, lambda, PixelSize, zs, Planes);  % Reconstruction of the different planes of interest
+ObjectReconstructed = abs(ObjectReconstructed).^2;                              % It is better to work with the intensity
+tiempo = toc;
+disp(['The reconstruction took ' num2str(tiempo) ' s']);
+%% Particles identification
+
+disp('Finding particles');
+% Objects projection
+ObjectProj = sum(ObjectReconstructed,3);
+ObjectProj = ObjectProj/max(ObjectProj(:));
+ObjectProj = squeeze(ObjectProj);
+figure,imagesc(abs(ObjectProj).^2), colorbar, colormap gray, axis square, xlabel('Pixel in X'), ylabel('Pixel in Y'), title('Projection: Reconstructed planes superposition')
+
+% Image filtering
+FObject = fftshift(fft2(fftshift(ObjectProj)));
+xt = linspace(-1,1,size(ObjectProj,1));
+[Xt,Yt] = meshgrid(xt);
+[T,R] = cart2pol(Xt,Yt);
+if strcmp(name, 'ejemplo1')
+  Factor1 = 0.1;
+elseif strcmp(name, 'ejemplo2')
+  Factor1 = 0.05;
+else
+  Factor1 = 0.1;
+end
+mask = R>Factor1;
+FilteredObjectProj = fftshift(ifft2(fftshift(FObject.*mask)));
+FilteredObjectProj = abs(FilteredObjectProj).^2;
+FilteredObjectProj = FilteredObjectProj/max(FilteredObjectProj(:));
+figure,imagesc(FilteredObjectProj), colorbar, colormap gray, axis square, xlabel('Pixel in X'), ylabel('Pixel in Y'), title('Filtered projection')
+
+% Image binarization
+if strcmp(name, 'ejemplo1')
+  Factor2 = 0.1;
+elseif strcmp(name, 'ejemplo2')
+  Factor2 = 0.5;
+else
+  Factor2 = 0.1;
+end
+Points1 = FilteredObjectProj > Factor2;
+
+% Automatic particle identification
+
+if Manual == 0
+  se = strel('disk',5);
+  bw = imclose(Points1,se);
+  figure,imagesc(bw), colorbar, colormap gray, axis square, xlabel('Pixel in X'), ylabel('Pixel in Y'), title('Binarized projection')
+end
+
+% Selection of particles
+if Manual == 1
+  figure, imagesc((Points1-1)*-1), colorbar, colormap gray, axis square, xlabel('Pixel in X'), ylabel('Pixel in Y'), title('Binarized projection')
+  uiwait(msgbox('Select points to evaluate'));
+  [px,py] = ginput;
+  px = round(px); py = round(py);
+end
+%% Centroid calculation
+
+if Manual == 1
+  
+  Xc=zeros(1,length(px));
+  Yc=zeros(1,length(py));
+  ROIc = 10;
+  
+  for p = 1:length(px);
+    for q = -ROIc:ROIc
+      for r = -ROIc:ROIc
+        Xc(p) = Xc(p)+abs(Points1(py(p)+q,px(p)+r)*(px(p)+r));
+      end
+    end
+    
+    Xc(p) = Xc(p)/sum(sum(abs(Points1(py(p)-ROIc:py(p)+ROIc,px(p)-ROIc:px(p)+ROIc))));
+    
+    for q = -ROIc:ROIc
+      for r = -ROIc:ROIc
+        Yc(p) = Yc(p)+abs(Points1(py(p)+q,px(p)+r)*(py(p)+q));
+      end
+    end
+    
+    Yc(p) = Yc(p)/sum(sum(abs(Points1(py(p)-ROIc:py(p)+ROIc,px(p)-ROIc:px(p)+ROIc))));
+  end
+
+end
+% Automatic centroid calculation
+if Manual == 0
+  PointR = bwconncomp(bw);
+  Xc=zeros(1,PointR.NumObjects);
+  Yc=zeros(1,PointR.NumObjects);
+  PointLoc = regionprops(PointR,'Centroid');
+  for p = 1:PointR.NumObjects
+    Dato = PointLoc(p).Centroid;
+    Xc(p) = Dato(1); Yc(p) = Dato(2);
+  end
+end
+
+%% Find z position
+
+disp([num2str(PointR.NumObjects) ' particles were found']);
+
+Xcr = round(Xc); Ycr = round(Yc);
+z = Planes; z2 = linspace(StartPlane,EndPlane,500);
+ILine = zeros(1,length(Planes),length(Xcr));
+ILine2 = zeros(1,length(z2),length(Xcr));
+PointPlane = zeros(1, length(Xcr));
+ROIc = 10;
+
+for p = 1:length(Xcr)
+  ObjectROIc = ObjectReconstructed(Ycr(p)-ROIc:Ycr(p)+ROIc,Xcr(p)-ROIc:Xcr(p)+ROIc,:);
+  ObjectROIc = sum(sum(ObjectROIc,1),2);
+  ILine(:,:,p) = ObjectROIc;
+  curve = ILine(:,:,p);
+  f = fit(z',curve','gauss2');
+  a1 = f.a1; a2 = f.a2; b1 = f.b1; b2 = f.b2; c1 = f.c1; c2 = f.c2;
+  gauss=a1.*exp(-((z2-b1)./(c1)).^2) + a2.*exp(-((z2-b2)./(c2)).^2);
+  ILine2(:,:,p) = gauss;
+  if PointR.NumObjects <= 30
+  figure(99), plot(z,ILine(:,:,p),'b*'), hold on,plot(z2,gauss,'r');
+  end
+end
+
+[~,PointPlane] = max(ILine2,[],2);
+PointPlaneZ = z2(PointPlane)*1e6;
+
+ObjectPixel = (PointPlaneZ/zs)*PixelSize;
+PointXcoor = (Xcr-size(HoloCont,2)/2).*ObjectPixel;
+PointYcoor = -(Ycr-size(HoloCont,2)/2).*ObjectPixel;
+
+Coordinates = [PointXcoor' PointYcoor' PointPlaneZ'];
+
+
+if strcmp(name, 'ejemplo1')
+  figure,plot3(PointXcoor', PointYcoor', PointPlaneZ', 'ob')
+  load('Pts_XYZ.mat')
+  hold on,plot3(Points_XYZ(:,1), Points_XYZ(:,2), Points_XYZ(:,3), 'or'), hold off,
+  axis square, xlabel('x[\mum]'), ylabel('y[\mum]'), zlabel('z[\mum]'),grid on, title('Found particles')
+  legend('Found positions', 'Real Positions','Location','North')
+else
+  figure,plot3(PointXcoor', PointYcoor', PointPlaneZ', 'o')
+  axis square, xlabel('x[\mum]'), ylabel('y[\mum]'), zlabel('z[\mum]'),grid on, title('Found particles')
+end
+
+##### SOURCE END #####
+--></body></html>
