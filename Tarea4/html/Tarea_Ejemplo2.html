@@ -1,0 +1,305 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Tarea_Ejemplo2</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-20"><meta name="DC.source" content="Tarea_Ejemplo2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Parameters initaialization</a></li><li><a href="#3">Create Scene</a></li><li><a href="#4">Create cameras</a></li><li><a href="#5">Make projections</a></li><li><a href="#6">Show results</a></li><li><a href="#7">Save data</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%</span>
+<span class="comment">% Tarea 3, Generation of cameras.</span>
+<span class="comment">%</span>
+<span class="comment">% There are two examples:</span>
+<span class="comment">%</span>
+<span class="comment">% 1. A panoramic of an scene</span>
+<span class="comment">% 2. Dolly zoom of an scene</span>
+<span class="comment">%</span>
+<span class="comment">% There are 10 posible objects which can be place in the scene.</span>
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+</pre><h2>Parameters initaialization<a name="2"></a></h2><pre class="codeinput">close <span class="string">all</span>
+
+addpath(<span class="string">'Objetos'</span>)
+addpath(<span class="string">'Funciones'</span>)
+
+<span class="comment">% Scene parameters initialization</span>
+scenename_list1 = {<span class="string">'Poly'</span>, <span class="string">'peaks'</span>, <span class="string">'house'</span>, <span class="string">'sphere'</span>, <span class="string">'pyramid'</span>};
+scenename_list2 = {<span class="string">'cube'</span>, <span class="string">'diamond'</span>, <span class="string">'dodecahedron'</span>, <span class="string">'humanoid_tri'</span>, <span class="string">'teapot'</span>};
+SceneProperties = struct(<span class="string">'w'</span>,[],<span class="string">'h'</span>,[],<span class="string">'l'</span>,[],<span class="string">'N'</span>,[],<span class="string">'T'</span>,[],<span class="string">'A'</span>,[],<span class="string">'ScaleFactor'</span>,[]);
+
+
+<span class="comment">% Camera parameters</span>
+
+<span class="comment">% look_at = [-5, 5, 0]; % Look at for the panoramic example. Can be change for any other</span>
+look_at = [0,0,0];  <span class="comment">% Look at for the dolly effect example</span>
+sky = [0,-1,0];       <span class="comment">% Do not change it.</span>
+foclen = 1;           <span class="comment">% Focal length of the camera</span>
+position = [0, 0, 0]; <span class="comment">% Camera position for single shot (If you do not define options camera it makes a single image for the camera position defined in this line)</span>
+FOV = 70;             <span class="comment">% Field of view</span>
+Panoramica = [15,0,10]; <span class="comment">% Radial distance to the observation point, Elevation of the camera, Number of images in the panoramic</span>
+Dolly = {[logspace(1.3,2,20)],20}; <span class="comment">% Positions range, scene width</span>
+</pre><h2>Create Scene<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Load or create scene</span>
+SceneType = 2;     <span class="comment">% if SceneType = 1 create scene with genscene, if SceneType = 2 load .obj file</span>
+
+<span class="comment">% For generated scene</span>
+
+<span class="comment">% T Indicates tranlation</span>
+<span class="comment">% A for rotation</span>
+<span class="comment">% ScaleFactor to scale object</span>
+<span class="keyword">if</span> SceneType == 1
+  scenename = {scenename_list1{1}};
+  SceneProperties.w = 4;
+  SceneProperties.h = 4;
+  SceneProperties.l = 4;
+  SceneProperties.N = 20;
+  SceneProperties.T = [0 0 0];
+  SceneProperties.A = [0 0 0];
+  SceneProperties.ScaleFactor = 1;
+<span class="keyword">end</span>
+
+<span class="comment">% For .obj load scene</span>
+
+<span class="comment">% T Indicates tranlation</span>
+<span class="comment">% A for rotation</span>
+<span class="comment">% ScaleFactor to scale object</span>
+<span class="keyword">if</span> SceneType == 2
+scenename = {};
+scenename(1) = {[scenename_list2{5} <span class="string">'.obj'</span>]};
+SceneProperties(1).T = [0 0 0];
+SceneProperties(1).A = [0 0 pi/2];
+SceneProperties(1).ScaleFactor = 1/50;
+
+scenename(2) = {[scenename_list2{3} <span class="string">'.obj'</span>]};
+SceneProperties(2).T = [-8 8 0];
+SceneProperties(2).A = [0 0 0];
+SceneProperties(2).ScaleFactor = 4;
+<span class="keyword">end</span>
+
+<span class="comment">% Generates scene</span>
+[X, L] = Gen_Scene (scenename,SceneProperties,SceneType);
+
+<span class="comment">% Display scene</span>
+fig = display3Dscene([],X,L);
+axis([min(X(1,:)),max(X(1,:)),min(X(2,:)),max(X(2,:)),min(X(3,:)),max(X(3,:))])
+view([45 45])
+</pre><pre class="codeoutput">Reading Object file : teapot.obj
+  % OBJ file created by ply_to_obj.c
+  %
+Finished Reading Object file
+Reading Object file : dodecahedron.obj
+  % OBJ file created by ply_to_obj.c
+  %
+Finished Reading Object file
+</pre><img vspace="5" hspace="5" src="Tarea_Ejemplo2_01.png" alt=""> <h2>Create cameras<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Panoramic example</span>
+<span class="comment">% camera = cameras(look_at, sky, foclen, position, FOV, 'panoramic', Panoramica);</span>
+
+<span class="comment">% Dolly zoom example</span>
+camera = cameras(look_at, sky, foclen, position, FOV, <span class="string">'dolly'</span>, Dolly);
+
+<span class="comment">% Single shoot example</span>
+<span class="comment">% camera = cameras(look_at, sky, foclen, position, FOV);</span>
+
+disp(<span class="string">'Generating cameras'</span>)
+</pre><pre class="codeoutput">Generating cameras
+</pre><h2>Make projections<a name="5"></a></h2><pre class="codeinput">[F, P, IM] = MakeImage(X,L,camera);
+</pre><img vspace="5" hspace="5" src="Tarea_Ejemplo2_02.png" alt=""> <h2>Show results<a name="6"></a></h2><pre class="codeinput">showcams(fig,foclen,P,IM);
+axis(<span class="string">'tight'</span>)
+print(<span class="string">'-dpng'</span>,<span class="string">'-r96'</span>,<span class="string">'-cmyk'</span>,<span class="string">'3D_scene_with_cams_ejemplo2.png'</span>)
+
+showVideo (F, 2, 5);
+</pre><img vspace="5" hspace="5" src="Tarea_Ejemplo2_03.png" alt=""> <img vspace="5" hspace="5" src="Tarea_Ejemplo2_04.png" alt=""> <h2>Save data<a name="7"></a></h2><pre class="codeinput">disp(<span class="string">'Saving data'</span>)
+
+v=VideoWriter(<span class="string">'ejemplo2.avi'</span>);
+v.FrameRate=10;
+open(v);
+writeVideo(v,F);
+close(v)
+
+savegif(F,<span class="string">'ejemplo2'</span>);
+</pre><pre class="codeoutput">Saving data
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Tarea 3, Generation of cameras.
+%
+% There are two examples:
+% 
+% 1. A panoramic of an scene
+% 2. Dolly zoom of an scene
+%
+% There are 10 posible objects which can be place in the scene.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Parameters initaialization
+
+close all
+
+addpath('Objetos')
+addpath('Funciones')
+
+% Scene parameters initialization
+scenename_list1 = {'Poly', 'peaks', 'house', 'sphere', 'pyramid'};
+scenename_list2 = {'cube', 'diamond', 'dodecahedron', 'humanoid_tri', 'teapot'};
+SceneProperties = struct('w',[],'h',[],'l',[],'N',[],'T',[],'A',[],'ScaleFactor',[]);
+
+
+% Camera parameters
+
+% look_at = [-5, 5, 0]; % Look at for the panoramic example. Can be change for any other
+look_at = [0,0,0];  % Look at for the dolly effect example
+sky = [0,-1,0];       % Do not change it.
+foclen = 1;           % Focal length of the camera
+position = [0, 0, 0]; % Camera position for single shot (If you do not define options camera it makes a single image for the camera position defined in this line)
+FOV = 70;             % Field of view
+Panoramica = [15,0,10]; % Radial distance to the observation point, Elevation of the camera, Number of images in the panoramic
+Dolly = {[logspace(1.3,2,20)],20}; % Positions range, scene width
+
+%% Create Scene
+
+% Load or create scene
+SceneType = 2;     % if SceneType = 1 create scene with genscene, if SceneType = 2 load .obj file
+
+% For generated scene
+
+% T Indicates tranlation
+% A for rotation
+% ScaleFactor to scale object
+if SceneType == 1
+  scenename = {scenename_list1{1}};
+  SceneProperties.w = 4;
+  SceneProperties.h = 4;
+  SceneProperties.l = 4;
+  SceneProperties.N = 20;
+  SceneProperties.T = [0 0 0];
+  SceneProperties.A = [0 0 0];
+  SceneProperties.ScaleFactor = 1;
+end
+
+% For .obj load scene
+
+% T Indicates tranlation
+% A for rotation
+% ScaleFactor to scale object
+if SceneType == 2
+scenename = {};
+scenename(1) = {[scenename_list2{5} '.obj']};
+SceneProperties(1).T = [0 0 0];
+SceneProperties(1).A = [0 0 pi/2];
+SceneProperties(1).ScaleFactor = 1/50;
+
+scenename(2) = {[scenename_list2{3} '.obj']};
+SceneProperties(2).T = [-8 8 0];
+SceneProperties(2).A = [0 0 0];
+SceneProperties(2).ScaleFactor = 4;
+end
+
+% Generates scene
+[X, L] = Gen_Scene (scenename,SceneProperties,SceneType);
+
+% Display scene
+fig = display3Dscene([],X,L);
+axis([min(X(1,:)),max(X(1,:)),min(X(2,:)),max(X(2,:)),min(X(3,:)),max(X(3,:))])
+view([45 45])
+
+%% Create cameras
+
+% Panoramic example
+% camera = cameras(look_at, sky, foclen, position, FOV, 'panoramic', Panoramica);
+
+% Dolly zoom example
+camera = cameras(look_at, sky, foclen, position, FOV, 'dolly', Dolly);
+
+% Single shoot example
+% camera = cameras(look_at, sky, foclen, position, FOV);
+
+disp('Generating cameras')
+
+%% Make projections
+
+[F, P, IM] = MakeImage(X,L,camera);
+%% Show results
+
+showcams(fig,foclen,P,IM);
+axis('tight')
+print('-dpng','-r96','-cmyk','3D_scene_with_cams_ejemplo2.png')
+
+showVideo (F, 2, 5);
+
+%% Save data
+
+disp('Saving data')
+
+v=VideoWriter('ejemplo2.avi');
+v.FrameRate=10;
+open(v);
+writeVideo(v,F);
+close(v)
+
+savegif(F,'ejemplo2');
+
+
+##### SOURCE END #####
+--></body></html>
