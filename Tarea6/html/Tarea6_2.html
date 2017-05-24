@@ -1,0 +1,177 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Tarea6_2</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-22"><meta name="DC.source" content="Tarea6_2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Create escene and images for homography analysis</a></li><li><a href="#4">Homography between image and scene</a></li><li><a href="#5">Parallel correction</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%</span>
+<span class="comment">% Tarea 6 part 2, Homography:</span>
+<span class="comment">%</span>
+<span class="comment">% This file is an example of perspective correction with homography.</span>
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+<span class="comment">% Call for functions to use</span>
+addpath(<span class="string">'Functions'</span>)
+</pre><h2>Create escene and images for homography analysis<a name="2"></a></h2><p>More information look for Tarea 4</p><pre class="codeinput">[X,L] = scenegen( <span class="string">'Large'</span>, 10 );
+X(4,:) = 1;
+display3Dscene([],X,L)
+campos([5,5,5])
+
+FOV = 20;
+Lookat = {[0 0 1]'};
+Position = [12 7 1]';
+
+<span class="keyword">for</span> i = 1:1 <span class="comment">% two cameras</span>
+    campars.angle = FOV*(pi/180); <span class="comment">% view angle</span>
+    campars.look_at = Lookat{i};  <span class="comment">% orientation of optical axis</span>
+    campars.position = Position; <span class="comment">% camera center</span>
+    cam(i).pars = cameragen( campars ); <span class="comment">% generate cameras</span>
+    cam(i).u = cam(i).pars.P * X;       <span class="comment">% 3D -&gt; 2D projection</span>
+    <span class="comment">% normalization to image plane</span>
+    cam(i).u = cam(i).u ./ repmat( cam(i).u(3,:), 3, 1 );
+<span class="keyword">end</span>
+
+[F1, ~, ~] = MakeImage(X,L,cam(1).pars,2);
+</pre><pre class="codeoutput">
+ans = 
+
+  Figure (1) with properties:
+
+      Number: 1
+        Name: ''
+       Color: [0.9400 0.9400 0.9400]
+    Position: [680 558 560 420]
+       Units: 'pixels'
+
+  Use GET to show all properties
+
+</pre><img vspace="5" hspace="5" src="Tarea6_2_01.png" alt=""> <img vspace="5" hspace="5" src="Tarea6_2_02.png" alt=""> <h2>Homography between image and scene<a name="4"></a></h2><pre class="codeinput">idxcorr12 = [2 4 7 9];
+
+H = u2Hdlt( X(2:4,idxcorr12), cam(1).u(:,idxcorr12) );
+
+Nu = inv(H)*cam(1).u;
+
+Nu = Nu./repmat(Nu(3,:),3,1);
+</pre><h2>Parallel correction<a name="5"></a></h2><pre class="codeinput">display2Dpoints(3,cam(1).u,[1,cam(i).pars.width,1,cam(i).pars.height],<span class="string">'k'</span>,<span class="string">'+'</span>,10,L);
+set(gca,<span class="string">'Box'</span>,<span class="string">'on'</span>);
+display2Dpoints(4,Nu,[1,10,1,10],<span class="string">'b'</span>,<span class="string">'o'</span>,10,L);
+set(gca,<span class="string">'Box'</span>,<span class="string">'on'</span>);
+</pre><img vspace="5" hspace="5" src="Tarea6_2_03.png" alt=""> <img vspace="5" hspace="5" src="Tarea6_2_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Tarea 6 part 2, Homography:
+%
+% This file is an example of perspective correction with homography.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Call for functions to use
+addpath('Functions')
+
+%% Create escene and images for homography analysis
+%%
+% More information look for Tarea 4
+
+[X,L] = scenegen( 'Large', 10 );
+X(4,:) = 1;
+display3Dscene([],X,L)
+campos([5,5,5])
+
+FOV = 20;
+Lookat = {[0 0 1]'};
+Position = [12 7 1]';
+
+for i = 1:1 % two cameras
+    campars.angle = FOV*(pi/180); % view angle
+    campars.look_at = Lookat{i};  % orientation of optical axis
+    campars.position = Position; % camera center
+    cam(i).pars = cameragen( campars ); % generate cameras
+    cam(i).u = cam(i).pars.P * X;       % 3D -> 2D projection
+    % normalization to image plane
+    cam(i).u = cam(i).u ./ repmat( cam(i).u(3,:), 3, 1 );
+end
+
+[F1, ~, ~] = MakeImage(X,L,cam(1).pars,2);
+
+%% Homography between image and scene
+
+idxcorr12 = [2 4 7 9];
+
+H = u2Hdlt( X(2:4,idxcorr12), cam(1).u(:,idxcorr12) );
+
+Nu = inv(H)*cam(1).u;
+
+Nu = Nu./repmat(Nu(3,:),3,1);
+
+%% Parallel correction
+display2Dpoints(3,cam(1).u,[1,cam(i).pars.width,1,cam(i).pars.height],'k','+',10,L);
+set(gca,'Box','on');
+display2Dpoints(4,Nu,[1,10,1,10],'b','o',10,L);
+set(gca,'Box','on');
+##### SOURCE END #####
+--></body></html>
