@@ -1,0 +1,340 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Tarea_5</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-22"><meta name="DC.source" content="Tarea_5.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Call functions and other files</a></li><li><a href="#3">Initial Parameters</a></li><li><a href="#4">Example Borders</a></li><li><a href="#6">Compute Correspondances</a></li><li><a href="#7">Arrange Data for comparison</a></li><li><a href="#8">Estimate P</a></li><li><a href="#9">Descompose P.</a></li><li><a href="#10">Coordinates system</a></li><li><a href="#12">Camera Parameters</a></li><li><a href="#13">Quiver plot</a></li><li><a href="#15">Escene plot</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%</span>
+<span class="comment">% Tarea5 Camera Calibration:</span>
+<span class="comment">%</span>
+<span class="comment">% An ScenA Scene provided by Alejandro Madrid is used to develop a simple</span>
+<span class="comment">% algorithm which makes use of different common computer tools to determine</span>
+<span class="comment">% the properties of a camera.</span>
+<span class="comment">%</span>
+<span class="comment">% Those properties are its posistion, orientation, focal lenth, principal</span>
+<span class="comment">% point, s parameter among other. In few works it will be possible to</span>
+<span class="comment">% obtain the Intriic and Extrinsic parameters of the camera.</span>
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+</pre><h2>Call functions and other files<a name="2"></a></h2><pre class="codeinput">addpath(<span class="string">'Funciones'</span>)
+addpath(<span class="string">'Objetos'</span>)
+addpath(<span class="string">'Funciones\FindCorners'</span>)
+
+Escena = imread(<span class="string">'Scena.jpg'</span>);
+</pre><h2>Initial Parameters<a name="3"></a></h2><pre class="codeinput">FileName = <span class="string">'Scena.jpg'</span>; <span class="comment">% Name of the file which contain the scene to be use</span>
+
+<span class="comment">%Physical size of the targets in length units (Every square in the target)</span>
+SquareSize = 25e-3;                 <span class="comment">%[m]</span>
+
+<span class="comment">%Window size for corner detection in pixels</span>
+CornerWindowSize = [10, 10];     <span class="comment">%[pix] (Half size)</span>
+
+<span class="comment">%Smart sub-selection of corners from the target to avoid bloqued squares.</span>
+<span class="comment">%The units are on number of squares to the origin (See example images ...)</span>
+SelectedSquaresXY = [ 1 1; 1 7; 7 7; 7 1]';
+PlaneName = <span class="string">'XY'</span>;
+</pre><h2>Example Borders<a name="4"></a></h2><p>In the user wants, he can use these previously found values for the corners. Otherwise the user can delete the last parameter in the function findCornersChessTarget and it will ask the user to choose the corners</p><pre class="codeinput">BorderXY = [1e3*[2.080929820076378   2.698367490445910   2.003294022370977   1.408170452083736];1e3*[1.640377128469363   2.047377878119838   2.563698472879467   2.023097345610006]]';
+BorderYZ = [1e3*[2.178650750456217   2.181576070841100   2.942754850188952   2.823288321599506];1e3*[1.483785865847368   0.742643538207413   1.052979810447279   1.862723588435269]]';
+BorderXZ = [1e3*[1.981997593402340   1.955952143187258   1.139314051218407   1.297041633566683];1e3*[1.482090629177878   0.742142730341926   1.039387429315705   1.842506087745998]]';
+</pre><h2>Compute Correspondances<a name="6"></a></h2><pre class="codeinput">[Pts2DXY, Pts3DXY] = findCornersChessTarget( FileName, SelectedSquaresXY ,<span class="keyword">...</span>
+                          CornerWindowSize, SquareSize, <span class="string">'XY'</span>, BorderXY);
+
+[Pts3DXY] = ArrangePts(Pts3DXY, <span class="string">'XY'</span>);
+
+[Pts2DYZ, Pts3DYZ] = findCornersChessTarget( FileName, SelectedSquaresXY ,<span class="keyword">...</span>
+                          CornerWindowSize, SquareSize, <span class="string">'YZ'</span>, BorderYZ);
+
+[Pts3DYZ] = ArrangePts(Pts3DYZ, <span class="string">'YZ'</span>);
+
+[Pts2DXZ, Pts3DXZ] = findCornersChessTarget( FileName, SelectedSquaresXY ,<span class="keyword">...</span>
+                          CornerWindowSize, SquareSize, <span class="string">'XZ'</span>, BorderXZ);
+
+[Pts3DXZ] = ArrangePts(Pts3DXZ, <span class="string">'XZ'</span>);
+</pre><pre class="codeoutput">Corner Extraction for outer squares...
+Corner extraction for inner squares...
+Warning: Image is too big to fit on screen; displaying at 25% 
+Corner Extraction for outer squares...
+Corner extraction for inner squares...
+Warning: Image is too big to fit on screen; displaying at 25% 
+Corner Extraction for outer squares...
+Corner extraction for inner squares...
+Warning: Image is too big to fit on screen; displaying at 25% 
+</pre><img vspace="5" hspace="5" src="Tarea_5_01.png" alt=""> <img vspace="5" hspace="5" src="Tarea_5_02.png" alt=""> <img vspace="5" hspace="5" src="Tarea_5_03.png" alt=""> <h2>Arrange Data for comparison<a name="7"></a></h2><pre class="codeinput">ImCoor = [Pts2DXY';Pts2DYZ';Pts2DXZ']; <span class="comment">% In px</span>
+worldCoor = [Pts3DXY';Pts3DYZ';Pts3DXZ']; <span class="comment">% In mm</span>
+</pre><h2>Estimate P<a name="8"></a></h2><pre class="codeinput">P = estimate_P( ImCoor, worldCoor);
+</pre><h2>Descompose P.<a name="9"></a></h2><pre class="codeinput"><span class="comment">% [K,R,C] = decompose_P( P, 'modifiedQR');</span>
+[K,R,C] = decompose_P( P, <span class="string">'Givens'</span>);
+</pre><h2>Coordinates system<a name="10"></a></h2><p>Calculation of the coordinate system and evaluation of the selected points with the reals coordinates ones found by the estimated camera.</p><pre class="codeinput"><span class="comment">% Few points are add to find the coordinates vectors</span>
+X = [worldCoor; [0,0,0];[0.1,0,0];[0,0.1,0];[0,0,0.1] ];
+X = [X,ones(length(X),1)];
+u=P*X';                       <span class="comment">% Calculates position for the real coordinates with the estimated camera</span>
+u = u./repmat(u(3,:),3,1);
+
+figure, imshow(Escena), axis <span class="string">equal</span>, xlabel (<span class="string">'Xc (in camera frame)'</span>), ylabel (<span class="string">'Xc (in camera frame)'</span>), title(<span class="string">'Coordinate system and points comparison'</span>)
+hold <span class="string">on</span>, plot(ImCoor(:,1),ImCoor(:,2),<span class="string">'b*'</span>)
+hold <span class="string">on</span>, plot(u(1,1:147),u(2,1:147),<span class="string">'rd'</span>)
+plot(u(1,[length(u)-3,length(u)-2]),u(2,[length(u)-3,length(u)-2]),<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,1)
+plot(u(1,[length(u)-3,length(u)-1]),u(2,[length(u)-3,length(u)-1]),<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,1)
+plot(u(1,[length(u)-3,length(u)]),u(2,[length(u)-3,length(u)]),<span class="string">'g'</span>,<span class="string">'LineWidth'</span>,1)
+</pre><pre class="codeoutput">Warning: Image is too big to fit on screen; displaying at 25% 
+</pre><img vspace="5" hspace="5" src="Tarea_5_04.png" alt=""> <h2>Camera Parameters<a name="12"></a></h2><pre class="codeinput">pixelSize=1.127e-6; <span class="comment">% This one is an input from the user. It should at least know the pixel size in the detector</span>
+U = K(1,3);         <span class="comment">% X coordinate principal point</span>
+V = K(2,3);         <span class="comment">% Y coordinate principal point</span>
+alpha= K(1,1);
+S=K(1,2);
+cott=S/-alpha;
+theta=atan(1/cott);
+beta=K(2,2)*sin(theta);
+R = C(1).^2+C(2).^2+C(3).^2;    <span class="comment">% Distance from the scene coordinate system to the camera</span>
+F = [alpha*pixelSize beta*pixelSize]; <span class="comment">% Focal length of the camera for x and y in [m].</span>
+fprintf(<span class="string">'The principal point coordinates are (%f , %f)\n'</span>,U,V);
+fprintf(<span class="string">'The calculated focal length are %f and %f mm, while the reference one is of 3.79 mm\n'</span>,F(1)*1e3,F(2)*1e3)
+fprintf(<span class="string">'The camera is %f cm away of the scene origin\n'</span>, R*1e2)
+
+<span class="comment">% RMS error for the x and Y coordinates for each coordinate in px.</span>
+ErrorRMS_X = sqrt(sum((ImCoor(:,1)-u(1,1:length(ImCoor))').^2)/length(ImCoor));
+ErrorRMS_Y = sqrt(sum((ImCoor(:,2)-u(2,1:length(ImCoor))').^2)/length(ImCoor));
+
+fprintf(<span class="string">'The RMS error in pixels is of %f en X and %f in Y\n'</span>,ErrorRMS_X,ErrorRMS_Y);
+</pre><pre class="codeoutput">The principal point coordinates are (2058.195782 , 1595.736427)
+The calculated focal length are 3.892061 and 3.804798 mm, while the reference one is of 3.79 mm
+The camera is 45.619826 cm away of the scene origin
+The RMS error in pixels is of 3.005925 en X and 2.065178 in Y
+</pre><h2>Quiver plot<a name="13"></a></h2><p>Plots the gradient of the error</p><pre class="codeinput">figure, imshow(Escena), axis <span class="string">equal</span>, xlabel (<span class="string">'Xc (in camera frame)'</span>), ylabel (<span class="string">'Xc (in camera frame)'</span>), title(<span class="string">'Gradient plot of the error'</span>)
+hold <span class="string">on</span>, plot(ImCoor(:,1),ImCoor(:,2),<span class="string">'b*'</span>)
+quiver(ImCoor(:,1),ImCoor(:,2),u(1,1:147)',u(2,1:147)',<span class="string">'r'</span>)
+</pre><pre class="codeoutput">Warning: Image is too big to fit on screen; displaying at 25% 
+</pre><img vspace="5" hspace="5" src="Tarea_5_05.png" alt=""> <h2>Escene plot<a name="15"></a></h2><p>With the new coordinate system plots a scene in the image used to estimate the camera.</p><pre class="codeinput">SceneProperties.w = 4;
+SceneProperties.h = 4;
+SceneProperties.l = 4;
+SceneProperties.N = 20;
+SceneProperties.T = [0.08 0.08 0];
+SceneProperties.A = [0 -pi/8 pi/2];
+SceneProperties.ScaleFactor = 0.001;
+[XN, L] = Gen_Scene ({<span class="string">'teapot.obj'</span>},SceneProperties,2);
+uN=P*XN;
+uN=uN./repmat(uN(3,:),3,1);
+figure, imshow(Escena), axis <span class="string">equal</span>, xlabel (<span class="string">'Xc (in camera frame)'</span>), ylabel (<span class="string">'Xc (in camera frame)'</span>), title(<span class="string">'Teapot in the scene'</span>)
+hold <span class="string">on</span>
+<span class="keyword">for</span> j=1:size(L,1),
+line([uN(1,L(j,:))],[uN(2,L(j,:))],<span class="string">'LineWidth'</span>,1);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Reading Object file : teapot.obj
+  % OBJ file created by ply_to_obj.c
+  %
+Finished Reading Object file
+Warning: Image is too big to fit on screen; displaying at 25% 
+</pre><img vspace="5" hspace="5" src="Tarea_5_06.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% Tarea5 Camera Calibration:
+% 
+% An ScenA Scene provided by Alejandro Madrid is used to develop a simple
+% algorithm which makes use of different common computer tools to determine
+% the properties of a camera.
+% 
+% Those properties are its posistion, orientation, focal lenth, principal 
+% point, s parameter among other. In few works it will be possible to 
+% obtain the Intriic and Extrinsic parameters of the camera.
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Call functions and other files
+
+addpath('Funciones')
+addpath('Objetos')
+addpath('Funciones\FindCorners')
+
+Escena = imread('Scena.jpg');
+
+%% Initial Parameters
+
+FileName = 'Scena.jpg'; % Name of the file which contain the scene to be use
+
+%Physical size of the targets in length units (Every square in the target)
+SquareSize = 25e-3;                 %[m]
+
+%Window size for corner detection in pixels
+CornerWindowSize = [10, 10];     %[pix] (Half size)
+
+%Smart sub-selection of corners from the target to avoid bloqued squares.
+%The units are on number of squares to the origin (See example images ...)
+SelectedSquaresXY = [ 1 1; 1 7; 7 7; 7 1]';
+PlaneName = 'XY';
+
+%% Example Borders
+%%
+% In the user wants, he can use these previously found values for the
+% corners. Otherwise the user can delete the last parameter in the
+% function findCornersChessTarget and it will ask the user to choose the
+% corners
+
+BorderXY = [1e3*[2.080929820076378   2.698367490445910   2.003294022370977   1.408170452083736];1e3*[1.640377128469363   2.047377878119838   2.563698472879467   2.023097345610006]]';
+BorderYZ = [1e3*[2.178650750456217   2.181576070841100   2.942754850188952   2.823288321599506];1e3*[1.483785865847368   0.742643538207413   1.052979810447279   1.862723588435269]]';
+BorderXZ = [1e3*[1.981997593402340   1.955952143187258   1.139314051218407   1.297041633566683];1e3*[1.482090629177878   0.742142730341926   1.039387429315705   1.842506087745998]]';
+
+
+%% Compute Correspondances
+
+[Pts2DXY, Pts3DXY] = findCornersChessTarget( FileName, SelectedSquaresXY ,...
+                          CornerWindowSize, SquareSize, 'XY', BorderXY);
+                        
+[Pts3DXY] = ArrangePts(Pts3DXY, 'XY');                        
+                        
+[Pts2DYZ, Pts3DYZ] = findCornersChessTarget( FileName, SelectedSquaresXY ,...
+                          CornerWindowSize, SquareSize, 'YZ', BorderYZ);
+                        
+[Pts3DYZ] = ArrangePts(Pts3DYZ, 'YZ');                        
+                        
+[Pts2DXZ, Pts3DXZ] = findCornersChessTarget( FileName, SelectedSquaresXY ,...
+                          CornerWindowSize, SquareSize, 'XZ', BorderXZ);   
+                        
+[Pts3DXZ] = ArrangePts(Pts3DXZ, 'XZ');                        
+          
+%% Arrange Data for comparison
+
+ImCoor = [Pts2DXY';Pts2DYZ';Pts2DXZ']; % In px
+worldCoor = [Pts3DXY';Pts3DYZ';Pts3DXZ']; % In mm
+
+%% Estimate P
+
+P = estimate_P( ImCoor, worldCoor);
+
+%% Descompose P.
+
+% [K,R,C] = decompose_P( P, 'modifiedQR');
+[K,R,C] = decompose_P( P, 'Givens');
+
+%% Coordinates system
+%%
+% Calculation of the coordinate system and evaluation of the selected
+% points with the reals coordinates ones found by the estimated camera.
+
+% Few points are add to find the coordinates vectors
+X = [worldCoor; [0,0,0];[0.1,0,0];[0,0.1,0];[0,0,0.1] ];
+X = [X,ones(length(X),1)];
+u=P*X';                       % Calculates position for the real coordinates with the estimated camera
+u = u./repmat(u(3,:),3,1);
+
+figure, imshow(Escena), axis equal, xlabel ('Xc (in camera frame)'), ylabel ('Xc (in camera frame)'), title('Coordinate system and points comparison')
+hold on, plot(ImCoor(:,1),ImCoor(:,2),'b*')
+hold on, plot(u(1,1:147),u(2,1:147),'rd')
+plot(u(1,[length(u)-3,length(u)-2]),u(2,[length(u)-3,length(u)-2]),'b','LineWidth',1)
+plot(u(1,[length(u)-3,length(u)-1]),u(2,[length(u)-3,length(u)-1]),'r','LineWidth',1)
+plot(u(1,[length(u)-3,length(u)]),u(2,[length(u)-3,length(u)]),'g','LineWidth',1)
+
+%% Camera Parameters
+
+pixelSize=1.127e-6; % This one is an input from the user. It should at least know the pixel size in the detector
+U = K(1,3);         % X coordinate principal point
+V = K(2,3);         % Y coordinate principal point
+alpha= K(1,1);
+S=K(1,2);
+cott=S/-alpha;
+theta=atan(1/cott);
+beta=K(2,2)*sin(theta);
+R = C(1).^2+C(2).^2+C(3).^2;    % Distance from the scene coordinate system to the camera
+F = [alpha*pixelSize beta*pixelSize]; % Focal length of the camera for x and y in [m].
+fprintf('The principal point coordinates are (%f , %f)\n',U,V);
+fprintf('The calculated focal length are %f and %f mm, while the reference one is of 3.79 mm\n',F(1)*1e3,F(2)*1e3)
+fprintf('The camera is %f cm away of the scene origin\n', R*1e2)
+
+% RMS error for the x and Y coordinates for each coordinate in px. 
+ErrorRMS_X = sqrt(sum((ImCoor(:,1)-u(1,1:length(ImCoor))').^2)/length(ImCoor)); 
+ErrorRMS_Y = sqrt(sum((ImCoor(:,2)-u(2,1:length(ImCoor))').^2)/length(ImCoor));
+
+fprintf('The RMS error in pixels is of %f en X and %f in Y\n',ErrorRMS_X,ErrorRMS_Y);
+
+%% Quiver plot
+%%
+% Plots the gradient of the error
+
+figure, imshow(Escena), axis equal, xlabel ('Xc (in camera frame)'), ylabel ('Xc (in camera frame)'), title('Gradient plot of the error')
+hold on, plot(ImCoor(:,1),ImCoor(:,2),'b*')
+quiver(ImCoor(:,1),ImCoor(:,2),u(1,1:147)',u(2,1:147)','r')
+
+%% Escene plot
+%%
+% With the new coordinate system plots a scene in the image used to
+% estimate the camera.
+
+SceneProperties.w = 4;
+SceneProperties.h = 4;
+SceneProperties.l = 4;
+SceneProperties.N = 20;
+SceneProperties.T = [0.08 0.08 0];
+SceneProperties.A = [0 -pi/8 pi/2];
+SceneProperties.ScaleFactor = 0.001;
+[XN, L] = Gen_Scene ({'teapot.obj'},SceneProperties,2);
+uN=P*XN;
+uN=uN./repmat(uN(3,:),3,1);
+figure, imshow(Escena), axis equal, xlabel ('Xc (in camera frame)'), ylabel ('Xc (in camera frame)'), title('Teapot in the scene')
+hold on
+for j=1:size(L,1),
+line([uN(1,L(j,:))],[uN(2,L(j,:))],'LineWidth',1);
+end
+##### SOURCE END #####
+--></body></html>
